@@ -73,5 +73,17 @@ pipeline {
                 }
             }
         }
+        stage("Scan Docker Image with Trivy") {
+            steps {
+                sh "trivy image ${IMAGE_NAME}:latest > trivy-image-scan.txt"
+                archiveArtifacts artifacts: 'trivy-image-scan.txt', onlyIfSuccessful: true
+                }
+            }
+        stage("CleanUp Artifact"){
+            steps{
+                script{
+                    sh "docker rmi  ${IMAGE_NAME}:latest
+                }
+            }
     }
 }
