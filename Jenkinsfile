@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage("CleanUp Workspace") {
             steps {
-                cleanWs()  // ✅ Corrected function name (was "CleanWS()")
+                cleanWs()
             }
         }
 
@@ -27,14 +27,16 @@ pipeline {
 
         stage("Test Application") {
             steps {
-                sh 'mvn test'  // ✅ Fixed command (was 'mvn tests')
+                sh 'mvn test'
             }
         }
-        stage("Sonarqube-Analysis"){
+
+        stage("Sonarqube-Analysis") {
             steps {
-                withSonarQubeEnv(credentialsId:  'jenkins-sonarqube-token') {
+                withSonarQubeEnv(credentialsId: 'jenkins-sonarqube-token') {
                     sh 'mvn sonar:sonar'
                 }
-             }
+            }
         }
+    }
 }
