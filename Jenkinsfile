@@ -30,5 +30,11 @@ pipeline {
                 sh 'mvn test'  // ✅ Fixed command (was 'mvn tests')
             }
         }
-    }
+        stage("Sonarqube-Analysis"){
+            steps {
+                withSonarQubeEnv(credentialsId:  'jenkins-sonarqube-token') {
+                    sh 'mvn sonar:sonar'
+                }
+             }
+        }
 }
