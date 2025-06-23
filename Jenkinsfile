@@ -12,7 +12,7 @@ pipeline {
         DOCKER_USER = "saurabh021"
         DOCKER_PASS = "dockerhub" // <-- Credential ID must be valid in Jenkins
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
-        IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+    
     }
 
     stages {
@@ -73,17 +73,20 @@ pipeline {
                 }
             }
         }
+
         stage("Scan Docker Image with Trivy") {
             steps {
                 sh "trivy image ${IMAGE_NAME}:latest > trivy-image-scan.txt"
                 archiveArtifacts artifacts: 'trivy-image-scan.txt', onlyIfSuccessful: true
+            }
+        }
+
+        stage("CleanUp Artifact") {
+            steps {
+                script {
+                    sh "docker rmi ${IMAGE_NAME}:latest"
                 }
             }
-        stage("CleanUp Artifact"){
-            steps{
-                script{
-                    sh "docker rmi  ${IMAGE_NAME}:latest
-                }
-            }
+        }
     }
 }
