@@ -54,6 +54,13 @@ pipeline {
             }
         }
 
+        stage("OWASP") {
+          steps {
+            dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-check'
+            dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                  }
+            }
+
         stage("Build & Tag Docker Image") {
             steps {
                 script {
