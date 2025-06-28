@@ -10,9 +10,8 @@ pipeline {
         APP_NAME = "register-app-pipeline"
         RELEASE = "1.0.0"
         DOCKER_USER = "saurabh021"
-        DOCKER_PASS = "dockerhub" // <-- Credential ID must be valid in Jenkins
+        DOCKER_PASS = "dockerhub" // Jenkins में ये credential ID होना चाहिए
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}-${RELEASE}"
-    
     }
 
     stages {
@@ -55,14 +54,13 @@ pipeline {
         }
 
         stage("OWASP") {
-             steps {
+            steps {
                 withCredentials([string(credentialsId: 'ndv-key', variable: 'NVD_KEY')]) {
                     dependencyCheck additionalArguments: "--scan ./ --disableYarnAudit --disableNodeAudit -Dnvd.api.key=${NVD_KEY}", odcInstallation: 'DP-check'
                     dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-                                        }
-                                }
-                    }
-
+                }
+            }
+        }
 
         stage("Build & Tag Docker Image") {
             steps {
@@ -87,22 +85,37 @@ pipeline {
         stage("Scan Docker Image with Trivy") {
             steps {
                 script {
-                    sh """
-                        trivy image ${IMAGE_NAME}:latest > trivy-image-scan.txt || true
-                        """
+                    echo "🔍 Running Trivy scan on ${IMAGE_NAME}:latest"
+                    def status = sh(
+                        script: "trivy image ${IMAGE_NAME}:latest > trivy-image-scan.txt",
+                        returnStatus: true
+                    )
+                    if (status != 0) {
+                        echo "⚠️ Trivy scan failed or found issues. Exit code: ${status}"
+                    } else {
+                        echo "✅ Trivy scan completed successfully."
                     }
-                archiveArtifacts artifacts: 'trivy-image-scan.txt', onlyIfSuccessful: false
-                        }
                 }
-
+                archiveArtifacts artifacts: 'trivy-image-scan.txt', onlyIfSuccessful: false
+            }
+        }
 
         stage("CleanUp Artifact") {
             steps {
                 script {
-                   sh "docker rmi ${IMAGE_NAME}:latest || true"
-
+                    echo "🧹 Removing Docker image"
+                    sh "docker rmi ${IMAGE_NAME}:latest || true"
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            echo "📦 Pipeline finished with status: ${currentBuild.currentResult}"
+        }
+        failure {
+            echo "❌ One or more stages failed. Check logs above."
         }
     }
 }
