@@ -94,7 +94,7 @@ pipeline {
             steps {
                 script {
                     echo " Removing Docker image"
-                    sh "docker rmi ${IMAGE_NAME}:latest || true"
+                    sh "docker rmi ${IMAGE_NAME}:latest"
                 }
             }
         }
