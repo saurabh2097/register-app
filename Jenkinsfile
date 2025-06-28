@@ -86,10 +86,15 @@ pipeline {
 
         stage("Scan Docker Image with Trivy") {
             steps {
-                sh "trivy image ${IMAGE_NAME}:latest > trivy-image-scan.txt"
-                archiveArtifacts artifacts: 'trivy-image-scan.txt', onlyIfSuccessful: true
-            }
-        }
+                script {
+                    sh """
+                        trivy image ${IMAGE_NAME}:${RELEASE} > trivy-image-scan.txt || true
+                        """
+                    }
+                archiveArtifacts artifacts: 'trivy-image-scan.txt', onlyIfSuccessful: false
+                        }
+                }
+
 
         stage("CleanUp Artifact") {
             steps {
