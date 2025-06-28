@@ -88,7 +88,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                        trivy image ${IMAGE_NAME} > trivy-image-scan.txt || true
+                        trivy image ${IMAGE_NAME}:latest > trivy-image-scan.txt || true
                         """
                     }
                 archiveArtifacts artifacts: 'trivy-image-scan.txt', onlyIfSuccessful: false
