@@ -11,7 +11,7 @@ pipeline {
         RELEASE = "1.0.0"
         DOCKER_USER = "saurabh021"
         DOCKER_PASS = "dockerhub" // <-- Credential ID must be valid in Jenkins
-        IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
+        IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}-${RELEASE}"
     
     }
 
