@@ -99,7 +99,8 @@ pipeline {
         stage("CleanUp Artifact") {
             steps {
                 script {
-                    sh "docker rmi ${IMAGE_NAME}:latest"
+                   sh "docker rmi ${IMAGE_NAME}:latest || true"
+
                 }
             }
         }
