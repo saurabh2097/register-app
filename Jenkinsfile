@@ -55,11 +55,14 @@ pipeline {
         }
 
         stage("OWASP") {
-          steps {
-            dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-check'
-            dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-                  }
-            }
+             steps {
+                withCredentials([string(credentialsId: 'ndv-key', variable: 'NVD_KEY')]) {
+                    dependencyCheck additionalArguments: "--scan ./ --disableYarnAudit --disableNodeAudit -Dnvd.api.key=${NVD_KEY}", odcInstallation: 'DP-check'
+                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                                        }
+                                }
+                    }
+
 
         stage("Build & Tag Docker Image") {
             steps {
