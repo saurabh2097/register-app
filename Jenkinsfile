@@ -82,23 +82,13 @@ pipeline {
             }
         }
 
-        stage("Scan Docker Image with Trivy") {
-            steps {
-                script {
-                    echo "🔍 Running Trivy scan on ${IMAGE_NAME}:latest"
-                    def status = sh(
-                        script: "trivy image ${IMAGE_NAME}:latest > trivy-image-scan.txt",
-                        returnStatus: true
-                    )
-                    if (status != 0) {
-                        echo "⚠️ Trivy scan failed or found issues. Exit code: ${status}"
-                    } else {
-                        echo "✅ Trivy scan completed successfully."
-                    }
-                }
-                archiveArtifacts artifacts: 'trivy-image-scan.txt', onlyIfSuccessful: false
-            }
-        }
+        stage("Trivy Scan") {
+           steps {
+               script {
+	            sh ('docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image saurabh021/register-app-pipeline-1.0.0:latest --no-progress --scanners vuln  --exit-code 0 --severity HIGH,CRITICAL --format table')
+               }
+           }
+       }
 
         stage("CleanUp Artifact") {
             steps {
