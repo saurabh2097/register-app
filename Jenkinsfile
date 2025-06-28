@@ -103,7 +103,7 @@ pipeline {
         stage("CleanUp Artifact") {
             steps {
                 script {
-                    echo "🧹 Removing Docker image"
+                    echo " Removing Docker image"
                     sh "docker rmi ${IMAGE_NAME}:latest || true"
                 }
             }
@@ -112,10 +112,10 @@ pipeline {
 
     post {
         always {
-            echo "📦 Pipeline finished with status: ${currentBuild.currentResult}"
+            echo " Pipeline finished with status: ${currentBuild.currentResult}"
         }
         failure {
-            echo "❌ One or more stages failed. Check logs above."
+            echo " One or more stages failed. Check logs above."
         }
     }
 }
